@@ -52,6 +52,14 @@ class Game {
         this.canvas.height = width * this.tileSize;
         this.restartButton = restartButton;
 
+        canvas.registerClickHandler(this.clickEvent, this, true);
+
+        //retrieve elements outside of canvas
+        this.numberOfMinesLeftContainer = document.getElementById('mines-left');
+        this.restartButton = document.getElementById('restart-button');
+        this.restartButton.addEventListener('click', this.startGame.bind(this));
+
+        // Load images
         Promise.all( this.canvas.loadImages({
                 sprClosed:          "./img/ClosedField.svg",
                 sprFlag:            "./img/ClosedField_Flagged.svg",
@@ -80,17 +88,10 @@ class Game {
                 }
                 
             });
-        
-        canvas.registerClickHandler(this.clickEvent, this, true);
-        restartButton.addEventListener('click', this.startGame.bind(this));
     }
 
     startGame(){
-        this.restartButton.innerHTML = "😨";
-        this.playState = PS_PLAYING;
         this.numberOfMines = Math.floor(this.width * this.height * decimalFractionOfMines);
-        this.placedFlags = 0;
-        this.correctPlacedFlags = 0;
         this.field = [];
         for( let x=0; x<this.width; x++){
             this.field[x] = [];
@@ -119,6 +120,13 @@ class Game {
                 this.field[x][y].draw();
             }
         }
+
+        this.placedFlags = 0;
+        this.correctPlacedFlags = 0;
+        this.updateMinesLeft();
+        this.restartButton.innerHTML = "😨";
+        this.playState = PS_PLAYING;
+        
 
         if( DEBUG ){ this.logField(); }
     }
@@ -215,6 +223,8 @@ class Game {
                     console.log(`Mines: ${this.numberOfMines}`);
                     console.groupEnd();
                 }
+                
+                this.updateMinesLeft()
 
                 // Check if won
                 if( this.correctPlacedFlags === this.numberOfMines && this.correctPlacedFlags === this.placedFlags ){
@@ -254,6 +264,17 @@ class Game {
                 this.field[y][x].draw();
             }
         }
+    }
+
+    updateMinesLeft(){
+        let baseImg = "./img/Number_";
+        let minesLeft = Math.max(0, this.numberOfMines - this.placedFlags);
+        let children = this.numberOfMinesLeftContainer.children;
+        for( let i=children.length-1; i>=0; i-- ){
+            let value = `${Math.floor(minesLeft / (Math.pow(10,children.length - i-1)))}`;
+            children[i].src = `${baseImg}${value[value.length-1]}.svg`;
+        }
+        
     }
 
     endGame(){

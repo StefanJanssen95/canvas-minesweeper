@@ -27,11 +27,19 @@
 .container{
     padding: 50px;
     background-color: #EEEEEE;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .controlbar{
     width: 280px;
     display: flex;
-    justify-content: space-around;
-    
+    justify-content: space-between;
+}
+
+.numbers{
+    margin: 0;
+    width: 40px;
 }
